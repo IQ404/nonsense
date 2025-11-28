@@ -1000,8 +1000,13 @@ body {
         top: auto;
         transform: none;
         max-width: 100%;
-        margin: 0 auto 2rem;
+        margin: 5rem auto 1rem;
         padding: 0 2rem;
+    }
+
+    .page-content.has-toc {
+        margin-left: 0;
+        padding-top: 1rem;
     }
 
     .toc-container {
@@ -1028,10 +1033,6 @@ body {
 
     .toc-progress {
         display: none;
-    }
-
-    .page-content.has-toc {
-        margin-left: 0;
     }
 
     .page-content.has-toc .container {
