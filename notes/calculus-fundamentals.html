@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus Fundamentals - Notes</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- MathJax for math formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Plotly.js for interactive plots -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">YourName</a>
+            <ul class="nav-menu">
+                <li><a href="../about.html">About</a></li>
+                <li><a href="../projects.html">Projects</a></li>
+                <li><a href="index.html" class="active">Notes</a></li>
+                <li><a href="../contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <div class="container">
+            <nav class="breadcrumb">
+                <a href="index.html">Notes</a> / <span>Calculus Fundamentals</span>
+            </nav>
+
+            <article class="note-article">
+                <header class="note-header">
+                    <h1>Calculus Fundamentals</h1>
+                    <p class="note-meta">Mathematics | Last updated: 2024</p>
+                </header>
+
+                <section class="note-section">
+                    <h2>1. Introduction to Derivatives</h2>
+                    <p>
+                        The derivative of a function measures the rate at which the function's value changes
+                        as its input changes. It is a fundamental concept in calculus.
+                    </p>
+
+                    <div class="math-block">
+                        <p>The derivative of a function \( f(x) \) is defined as:</p>
+                        \[
+                        f'(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}
+                        \]
+                    </div>
+
+                    <h3>Common Derivative Rules</h3>
+                    <div class="math-block">
+                        <p><strong>Power Rule:</strong></p>
+                        \[
+                        \frac{d}{dx}[x^n] = nx^{n-1}
+                        \]
+
+                        <p><strong>Product Rule:</strong></p>
+                        \[
+                        \frac{d}{dx}[f(x) \cdot g(x)] = f'(x)g(x) + f(x)g'(x)
+                        \]
+
+                        <p><strong>Chain Rule:</strong></p>
+                        \[
+                        \frac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)
+                        \]
+                    </div>
+
+                    <h3>Interactive Example: Derivative of \( f(x) = x^2 \)</h3>
+                    <p>
+                        Below is an interactive plot showing \( f(x) = x^2 \) and its derivative \( f'(x) = 2x \).
+                        Hover over the curves to see values, zoom in/out, and pan around.
+                    </p>
+                    <div id="derivative-plot" class="plot-container"></div>
+                </section>
+
+                <section class="note-section">
+                    <h2>2. Integration</h2>
+                    <p>
+                        Integration is the reverse process of differentiation. It allows us to find areas under curves
+                        and solve many practical problems.
+                    </p>
+
+                    <div class="math-block">
+                        <p><strong>Indefinite Integral:</strong></p>
+                        \[
+                        \int x^n \, dx = \frac{x^{n+1}}{n+1} + C \quad (n \neq -1)
+                        \]
+
+                        <p><strong>Definite Integral:</strong></p>
+                        \[
+                        \int_a^b f(x) \, dx = F(b) - F(a)
+                        \]
+                        <p>where \( F(x) \) is the antiderivative of \( f(x) \).</p>
+                    </div>
+
+                    <h3>Interactive Example: Area Under a Curve</h3>
+                    <p>
+                        The shaded area represents \( \int_0^2 x^2 \, dx = \frac{8}{3} \approx 2.67 \)
+                    </p>
+                    <div id="integral-plot" class="plot-container"></div>
+                </section>
+
+                <section class="note-section">
+                    <h2>3. Trigonometric Functions</h2>
+                    <p>
+                        Derivatives and integrals of trigonometric functions appear frequently in physics and engineering.
+                    </p>
+
+                    <div class="math-block">
+                        <p><strong>Derivatives:</strong></p>
+                        \[
+                        \frac{d}{dx}[\sin x] = \cos x
+                        \]
+                        \[
+                        \frac{d}{dx}[\cos x] = -\sin x
+                        \]
+                        \[
+                        \frac{d}{dx}[\tan x] = \sec^2 x
+                        \]
+                    </div>
+
+                    <h3>Interactive Example: Sine and Cosine</h3>
+                    <p>
+                        Notice how the derivative of \( \sin(x) \) is \( \cos(x) \), and how they relate to each other.
+                    </p>
+                    <div id="trig-plot" class="plot-container"></div>
+                </section>
+
+                <section class="note-section">
+                    <h2>4. Taylor Series</h2>
+                    <p>
+                        The Taylor series allows us to approximate functions using polynomials.
+                    </p>
+
+                    <div class="math-block">
+                        <p><strong>Taylor Series Expansion around \( x = a \):</strong></p>
+                        \[
+                        f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n
+                        \]
+
+                        <p><strong>Example: \( e^x \) around \( x = 0 \):</strong></p>
+                        \[
+                        e^x = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \frac{x^4}{4!} + \cdots
+                        \]
+                    </div>
+
+                    <h3>Interactive Example: Taylor Approximation of \( e^x \)</h3>
+                    <p>
+                        See how adding more terms improves the approximation of \( e^x \).
+                    </p>
+                    <div id="taylor-plot" class="plot-container"></div>
+                </section>
+            </article>
+
+            <div class="note-navigation">
+                <a href="index.html" class="btn btn-secondary">Back to Notes</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Your Name. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Plot 1: Derivative visualization
+        const x1 = [];
+        const fx = [];
+        const dfx = [];
+        for (let i = -3; i <= 3; i += 0.1) {
+            x1.push(i);
+            fx.push(i * i);
+            dfx.push(2 * i);
+        }
+
+        Plotly.newPlot('derivative-plot', [
+            { x: x1, y: fx, name: 'f(x) = x²', line: { color: '#2563eb', width: 3 } },
+            { x: x1, y: dfx, name: "f'(x) = 2x", line: { color: '#dc2626', width: 3, dash: 'dash' } }
+        ], {
+            title: 'Function and Its Derivative',
+            xaxis: { title: 'x', zeroline: true, zerolinewidth: 1 },
+            yaxis: { title: 'y', zeroline: true, zerolinewidth: 1 },
+            legend: { x: 0.02, y: 0.98 },
+            margin: { t: 50, b: 50, l: 50, r: 30 }
+        }, { responsive: true });
+
+        // Plot 2: Integral visualization (area under curve)
+        const x2 = [];
+        const y2 = [];
+        for (let i = 0; i <= 2; i += 0.05) {
+            x2.push(i);
+            y2.push(i * i);
+        }
+
+        const x2Full = [];
+        const y2Full = [];
+        for (let i = -1; i <= 3; i += 0.1) {
+            x2Full.push(i);
+            y2Full.push(i * i);
+        }
+
+        Plotly.newPlot('integral-plot', [
+            { x: x2, y: y2, fill: 'tozeroy', name: 'Area = 8/3', fillcolor: 'rgba(37, 99, 235, 0.3)', line: { color: '#2563eb', width: 0 } },
+            { x: x2Full, y: y2Full, name: 'f(x) = x²', line: { color: '#2563eb', width: 3 } }
+        ], {
+            title: 'Definite Integral: Area Under the Curve',
+            xaxis: { title: 'x', zeroline: true, zerolinewidth: 1 },
+            yaxis: { title: 'y', zeroline: true, zerolinewidth: 1 },
+            showlegend: true,
+            legend: { x: 0.02, y: 0.98 },
+            margin: { t: 50, b: 50, l: 50, r: 30 }
+        }, { responsive: true });
+
+        // Plot 3: Trigonometric functions
+        const x3 = [];
+        const sinX = [];
+        const cosX = [];
+        for (let i = -2 * Math.PI; i <= 2 * Math.PI; i += 0.1) {
+            x3.push(i);
+            sinX.push(Math.sin(i));
+            cosX.push(Math.cos(i));
+        }
+
+        Plotly.newPlot('trig-plot', [
+            { x: x3, y: sinX, name: 'sin(x)', line: { color: '#2563eb', width: 3 } },
+            { x: x3, y: cosX, name: 'cos(x) = d/dx[sin(x)]', line: { color: '#dc2626', width: 3, dash: 'dash' } }
+        ], {
+            title: 'Sine and Its Derivative (Cosine)',
+            xaxis: {
+                title: 'x',
+                zeroline: true,
+                zerolinewidth: 1,
+                tickvals: [-2*Math.PI, -Math.PI, 0, Math.PI, 2*Math.PI],
+                ticktext: ['-2π', '-π', '0', 'π', '2π']
+            },
+            yaxis: { title: 'y', zeroline: true, zerolinewidth: 1 },
+            legend: { x: 0.02, y: 0.98 },
+            margin: { t: 50, b: 50, l: 50, r: 30 }
+        }, { responsive: true });
+
+        // Plot 4: Taylor series approximation
+        const x4 = [];
+        const expX = [];
+        const taylor1 = [];
+        const taylor3 = [];
+        const taylor5 = [];
+
+        function factorial(n) {
+            if (n <= 1) return 1;
+            return n * factorial(n - 1);
+        }
+
+        function taylorExp(x, terms) {
+            let sum = 0;
+            for (let n = 0; n < terms; n++) {
+                sum += Math.pow(x, n) / factorial(n);
+            }
+            return sum;
+        }
+
+        for (let i = -2; i <= 2; i += 0.1) {
+            x4.push(i);
+            expX.push(Math.exp(i));
+            taylor1.push(taylorExp(i, 2));  // 1 + x
+            taylor3.push(taylorExp(i, 4));  // 1 + x + x²/2 + x³/6
+            taylor5.push(taylorExp(i, 6));  // up to x⁵/120
+        }
+
+        Plotly.newPlot('taylor-plot', [
+            { x: x4, y: expX, name: 'eˣ (exact)', line: { color: '#1f2937', width: 3 } },
+            { x: x4, y: taylor1, name: '1 + x (2 terms)', line: { color: '#f59e0b', width: 2, dash: 'dot' } },
+            { x: x4, y: taylor3, name: '4 terms', line: { color: '#10b981', width: 2, dash: 'dash' } },
+            { x: x4, y: taylor5, name: '6 terms', line: { color: '#2563eb', width: 2, dash: 'dashdot' } }
+        ], {
+            title: 'Taylor Series Approximation of eˣ',
+            xaxis: { title: 'x', zeroline: true, zerolinewidth: 1 },
+            yaxis: { title: 'y', zeroline: true, zerolinewidth: 1, range: [-1, 8] },
+            legend: { x: 0.02, y: 0.98 },
+            margin: { t: 50, b: 50, l: 50, r: 30 }
+        }, { responsive: true });
+    </script>
+</body>
+</html>
