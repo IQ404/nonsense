@@ -27,7 +27,23 @@
         </div>
     </nav>
 
-    <main class="page-content">
+    <!-- Floating Table of Contents -->
+    <aside class="toc-sidebar">
+        <div class="toc-container">
+            <h4 class="toc-title">Contents</h4>
+            <nav class="toc-nav">
+                <a href="#derivatives" class="toc-link">1. Introduction to Derivatives</a>
+                <a href="#integration" class="toc-link">2. Integration</a>
+                <a href="#trigonometric" class="toc-link">3. Trigonometric Functions</a>
+                <a href="#taylor" class="toc-link">4. Taylor Series</a>
+            </nav>
+            <div class="toc-progress">
+                <div class="toc-progress-bar"></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="page-content has-toc">
         <div class="container">
             <nav class="breadcrumb">
                 <a href="index.html">Notes</a> / <span>Calculus Fundamentals</span>
@@ -39,7 +55,7 @@
                     <p class="note-meta">Mathematics | Last updated: 2024</p>
                 </header>
 
-                <section class="note-section">
+                <section id="derivatives" class="note-section">
                     <h2>1. Introduction to Derivatives</h2>
                     <p>
                         The derivative of a function measures the rate at which the function's value changes
@@ -79,7 +95,7 @@
                     <div id="derivative-plot" class="plot-container"></div>
                 </section>
 
-                <section class="note-section">
+                <section id="integration" class="note-section">
                     <h2>2. Integration</h2>
                     <p>
                         Integration is the reverse process of differentiation. It allows us to find areas under curves
@@ -106,7 +122,7 @@
                     <div id="integral-plot" class="plot-container"></div>
                 </section>
 
-                <section class="note-section">
+                <section id="trigonometric" class="note-section">
                     <h2>3. Trigonometric Functions</h2>
                     <p>
                         Derivatives and integrals of trigonometric functions appear frequently in physics and engineering.
@@ -132,7 +148,7 @@
                     <div id="trig-plot" class="plot-container"></div>
                 </section>
 
-                <section class="note-section">
+                <section id="taylor" class="note-section">
                     <h2>4. Taylor Series</h2>
                     <p>
                         The Taylor series allows us to approximate functions using polynomials.
@@ -171,6 +187,57 @@
     </footer>
 
     <script>
+        // Table of Contents - Active section highlighting
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const sections = document.querySelectorAll('.note-section');
+        const progressBar = document.querySelector('.toc-progress-bar');
+
+        function updateTOC() {
+            const scrollPos = window.scrollY + 150;
+
+            // Update progress bar
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (window.scrollY / docHeight) * 100;
+            progressBar.style.width = scrollPercent + '%';
+
+            // Find current section
+            let currentSection = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            // Update active link
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Smooth scroll for TOC links
+        tocLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    const offsetTop = targetSection.offsetTop - 100;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        window.addEventListener('scroll', updateTOC);
+        window.addEventListener('load', updateTOC);
+
         // Plot 1: Derivative visualization
         const x1 = [];
         const fx = [];
