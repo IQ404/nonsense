@@ -396,3 +396,412 @@ body {
         font-size: 1.5rem;
     }
 }
+
+/* ==================== */
+/* Multi-Page Layout    */
+/* ==================== */
+
+/* Active nav link */
+.nav-menu a.active {
+    color: var(--primary-color);
+}
+
+/* Home page cards */
+.home-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.home-card {
+    display: block;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-decoration: none;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.home-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+}
+
+.home-card-icon {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.home-card h3 {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.home-card p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+/* Page content layout */
+.page-content {
+    padding-top: 5rem;
+    min-height: calc(100vh - 80px);
+}
+
+.page-header {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: var(--text-light);
+    font-size: 1.125rem;
+}
+
+/* Content sections */
+.content-section {
+    padding: 2rem 0;
+}
+
+.content-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+}
+
+/* About page */
+.about-grid {
+    max-width: 800px;
+}
+
+.about-grid h2 {
+    margin-bottom: 1rem;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.skill-category h3 {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.skill-category .skills-list {
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.skill-category .skills-list li {
+    background: none;
+    border: none;
+    padding: 0.25rem 0;
+}
+
+/* Timeline */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--primary-color);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    transform: translateX(-5px);
+}
+
+.timeline-date {
+    font-size: 0.875rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-content h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-content p {
+    color: var(--text-light);
+}
+
+/* Contact page */
+.contact-section {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.social-section {
+    margin-top: 4rem;
+}
+
+.social-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+}
+
+.social-links-large {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.social-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem 2rem;
+    background: var(--bg-alt);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: var(--transition);
+}
+
+.social-card:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-3px);
+}
+
+/* ==================== */
+/* Notes Section        */
+/* ==================== */
+
+.notes-section {
+    margin-bottom: 3rem;
+}
+
+.notes-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.note-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.note-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow);
+}
+
+.note-card.note-placeholder {
+    border-style: dashed;
+    opacity: 0.6;
+}
+
+.note-card.note-placeholder:hover {
+    opacity: 1;
+}
+
+.note-icon {
+    flex-shrink: 0;
+    color: var(--primary-color);
+}
+
+.note-content h3 {
+    color: var(--text-color);
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+}
+
+.note-content p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.note-date {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+/* Note article page */
+.breadcrumb {
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.breadcrumb a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.note-article {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 3rem;
+}
+
+.note-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.note-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.note-meta {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.note-section {
+    margin-bottom: 3rem;
+}
+
+.note-section h2 {
+    font-size: 1.5rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.note-section h3 {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin: 1.5rem 0 1rem;
+}
+
+.note-section p {
+    color: var(--text-light);
+    margin-bottom: 1rem;
+    line-height: 1.8;
+}
+
+/* Math blocks */
+.math-block {
+    background: var(--bg-alt);
+    border-left: 4px solid var(--primary-color);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 8px 8px 0;
+    overflow-x: auto;
+}
+
+.math-block p {
+    margin-bottom: 0.75rem;
+}
+
+.math-block p:last-child {
+    margin-bottom: 0;
+}
+
+/* Interactive plots */
+.plot-container {
+    width: 100%;
+    height: 400px;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Note navigation */
+.note-navigation {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Responsive for notes */
+@media (max-width: 768px) {
+    .notes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .note-article {
+        padding: 0 1rem;
+    }
+
+    .plot-container {
+        height: 300px;
+    }
+
+    .math-block {
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .home-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .social-links-large {
+        flex-direction: column;
+        align-items: center;
+    }
+}
