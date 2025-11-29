@@ -222,13 +222,15 @@
         // Model configuration - only includes models that exist in assets/models/
         // armchair.glb includes: leather armchair, coffee table, floor lamp (all in one)
         const MODEL_CONFIG = {
-            bookshelf: { file: 'bookshelf.glb', position: [-3.5, 0, -2.5], rotation: [0, Math.PI/2, 0], scale: 1 },
+            bookshelf: { file: 'bookshelf.glb', position: [-3.2, 0, -2.5], rotation: [0, Math.PI/2, 0], scale: 1 },
             desk: { file: 'desk.glb', position: [2.5, 0, -2.8], rotation: [0, 0, 0], scale: 1 },
             armchair: { file: 'armchair.glb', position: [-1, 0, 1.5], rotation: [0, Math.PI/4, 0], scale: 1 },
             gramophone: { file: 'gramophone.glb', position: [2.8, 0, 1.5], rotation: [0, 0, 0], scale: 1 },
             typewriter: { file: 'typewriter.glb', position: [-3.6, 0.57, 1.2], rotation: [0, Math.PI/2, 0], scale: 1 },
             mirror: { file: 'mirror.glb', position: [3.95, 1.6, 1], rotation: [0, -Math.PI/2, 0], scale: 1 },
             suitcases: { file: 'suitcase.glb', position: [1.5, 0, 3.5], rotation: [0, 0.2, 0], scale: 1 },
+            grandfatherClock: { file: 'grandfather_clock.glb', position: [-3.7, 0, -0.8], rotation: [0, Math.PI/2.5, 0], scale: 1 },
+            radio: { file: 'radio.glb', position: [3.85, 1.1, 1.5], rotation: [0, -Math.PI/2, 0], scale: 1 },
         };
 
         // Track loaded models
@@ -2624,7 +2626,9 @@
             armchair,  // armchair.glb includes coffee table + floor lamp too
             typewriter,
             mirror,
-            suitcases
+            suitcases,
+            grandfatherClock,
+            radio
             // gramophone has no procedural equivalent - it's an addition
         };
 
