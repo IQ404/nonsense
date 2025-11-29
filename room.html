@@ -177,8 +177,8 @@
 
         // Scene setup
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
-        scene.fog = new THREE.Fog(0x1a1a2e, 1, 20);
+        scene.background = new THREE.Color(0x2a2a3e);
+        scene.fog = new THREE.Fog(0x2a2a3e, 8, 25);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
         camera.position.set(0, 1.6, 3);
@@ -239,11 +239,11 @@
         });
 
         // Lighting
-        const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+        const ambientLight = new THREE.AmbientLight(0x6070a0, 1.2);
         scene.add(ambientLight);
 
         // Warm ceiling light
-        const ceilingLight = new THREE.PointLight(0xffeedd, 1, 15);
+        const ceilingLight = new THREE.PointLight(0xffeedd, 2.5, 20);
         ceilingLight.position.set(0, 2.8, 0);
         ceilingLight.castShadow = true;
         ceilingLight.shadow.mapSize.width = 1024;
@@ -251,20 +251,25 @@
         scene.add(ceilingLight);
 
         // Desk lamp light
-        const deskLight = new THREE.SpotLight(0xffffee, 0.8, 5, Math.PI / 4, 0.5);
+        const deskLight = new THREE.SpotLight(0xffffee, 2, 8, Math.PI / 4, 0.5);
         deskLight.position.set(-3, 2.2, -3);
         deskLight.target.position.set(-3.5, 0.8, -3.5);
         deskLight.castShadow = true;
         scene.add(deskLight);
         scene.add(deskLight.target);
 
+        // Additional fill light
+        const fillLight = new THREE.PointLight(0xaabbff, 0.8, 12);
+        fillLight.position.set(2, 2, 2);
+        scene.add(fillLight);
+
         // Materials
         const wallMaterial = new THREE.MeshStandardMaterial({
-            color: 0x2d2d44,
+            color: 0x4a4a6a,
             roughness: 0.9
         });
         const floorMaterial = new THREE.MeshStandardMaterial({
-            color: 0x1a1a28,
+            color: 0x2a2a3a,
             roughness: 0.8
         });
         const woodMaterial = new THREE.MeshStandardMaterial({
