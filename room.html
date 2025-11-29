@@ -107,6 +107,29 @@
             to { transform: rotate(360deg); }
         }
 
+        #progress-container {
+            width: 200px;
+            height: 6px;
+            background: rgba(139, 90, 43, 0.2);
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #8b5a2b;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        #progress-text {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
         #back-link {
             position: fixed;
             bottom: 20px;
@@ -135,6 +158,10 @@
     <div id="loading">
         <h2>Entering the study...</h2>
         <div class="spinner"></div>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="progress-text">Initializing...</div>
     </div>
 
     <div id="info">
@@ -159,32 +186,31 @@
     <script type="module">
         import * as THREE from 'three';
         import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
         // ============================================
-        // MODEL LOADING SYSTEM (for future use)
+        // PROGRESS TRACKING
         // ============================================
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
 
-        const gltfLoader = new GLTFLoader();
-
-        // Model loading helper (for future external model support)
-        function loadModel(url, name) {
-            return new Promise((resolve, reject) => {
-                gltfLoader.load(
-                    url,
-                    (gltf) => {
-                        resolve(gltf);
-                    },
-                    undefined,
-                    (error) => {
-                        console.warn(`Failed to load model ${name}:`, error);
-                        resolve(null);
-                    }
-                );
-            });
+        function updateProgress(percent, message) {
+            if (progressBar) progressBar.style.width = percent + '%';
+            if (progressText) progressText.textContent = message;
+            console.log(`[${percent}%] ${message}`);
         }
 
+        // Global error handler
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Error: ', msg, 'at line', lineNo);
+            if (progressText) progressText.textContent = 'Error: ' + msg;
+            if (progressBar) progressBar.style.background = '#c00';
+            return false;
+        };
+
+        updateProgress(10, 'Modules loaded...');
+
         // Scene setup - warm, sunlit atmosphere
+        updateProgress(15, 'Creating scene...');
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xfff8f0);
         scene.fog = new THREE.Fog(0xfff8f0, 12, 30);
@@ -247,6 +273,7 @@
         });
 
         // ============================================
+        updateProgress(20, 'Setting up lighting...');
         // LIGHTING - Warm sunlight streaming through
         // ============================================
 
@@ -286,6 +313,7 @@
         scene.add(windowLight.target);
 
         // ============================================
+        updateProgress(25, 'Creating materials...');
         // MATERIALS - Warm, lived-in textures
         // ============================================
 
@@ -392,6 +420,7 @@
         });
 
         // ============================================
+        updateProgress(30, 'Building room structure...');
         // ROOM STRUCTURE
         // ============================================
 
@@ -531,6 +560,7 @@
         scene.add(dustParticles);
 
         // ============================================
+        updateProgress(40, 'Creating interactive objects...');
         // INTERACTIVE OBJECTS
         // ============================================
 
@@ -1053,6 +1083,7 @@
         scene.add(floorBooks2);
 
         // ============================================
+        updateProgress(60, 'Adding decorative props...');
         // EDITH FINCH-STYLE DECORATIVE PROPS
         // ============================================
 
@@ -2225,6 +2256,7 @@
         }
 
         // ============================================
+        updateProgress(85, 'Setting up interaction system...');
         // INTERACTION SYSTEM
         // ============================================
 
@@ -2268,6 +2300,7 @@
         });
 
         // ============================================
+        updateProgress(95, 'Starting animation...');
         // ANIMATION LOOP
         // ============================================
 
@@ -2330,13 +2363,15 @@
         });
 
         // Hide loading
+        updateProgress(100, 'Ready!');
         setTimeout(() => {
             loading.style.opacity = '0';
             loading.style.transition = 'opacity 0.5s';
             setTimeout(() => loading.style.display = 'none', 500);
-        }, 1500);
+        }, 1000);
 
         animate();
+        console.log('Scene initialized successfully!');
     </script>
 </body>
 </html>
