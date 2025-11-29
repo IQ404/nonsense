@@ -159,6 +159,41 @@
     <script type="module">
         import * as THREE from 'three';
         import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+        // ============================================
+        // MODEL LOADING SYSTEM
+        // ============================================
+
+        const loadingManager = new THREE.LoadingManager();
+        const gltfLoader = new GLTFLoader(loadingManager);
+
+        // Setup DRACO loader for compressed models
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        gltfLoader.setDRACOLoader(dracoLoader);
+
+        // Track loaded models
+        const loadedModels = {};
+
+        // Model loading helper
+        function loadModel(url, name) {
+            return new Promise((resolve, reject) => {
+                gltfLoader.load(
+                    url,
+                    (gltf) => {
+                        loadedModels[name] = gltf;
+                        resolve(gltf);
+                    },
+                    undefined,
+                    (error) => {
+                        console.warn(`Failed to load model ${name}:`, error);
+                        resolve(null); // Resolve with null so we can continue
+                    }
+                );
+            });
+        }
 
         // Scene setup - warm, sunlit atmosphere
         const scene = new THREE.Scene();
@@ -324,6 +359,47 @@
         const potMaterial = new THREE.MeshStandardMaterial({
             color: 0xb87333,
             roughness: 0.7
+        });
+
+        const brassMaterial = new THREE.MeshStandardMaterial({
+            color: 0xb8860b,
+            metalness: 0.8,
+            roughness: 0.3
+        });
+
+        const antiqueGoldMaterial = new THREE.MeshStandardMaterial({
+            color: 0xc9a227,
+            metalness: 0.6,
+            roughness: 0.4
+        });
+
+        const velvetMaterial = new THREE.MeshStandardMaterial({
+            color: 0x4a1c2a,
+            roughness: 0.95
+        });
+
+        const crystalMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.7,
+            roughness: 0.1,
+            metalness: 0.1
+        });
+
+        const ivoryMaterial = new THREE.MeshStandardMaterial({
+            color: 0xfffff0,
+            roughness: 0.6
+        });
+
+        const oldPaperMaterial = new THREE.MeshStandardMaterial({
+            color: 0xf5deb3,
+            roughness: 0.9
+        });
+
+        const tarnishedBrassMaterial = new THREE.MeshStandardMaterial({
+            color: 0x8b7355,
+            metalness: 0.5,
+            roughness: 0.6
         });
 
         // ============================================
@@ -988,6 +1064,1178 @@
         scene.add(floorBooks2);
 
         // ============================================
+        // EDITH FINCH-STYLE DECORATIVE PROPS
+        // ============================================
+
+        // === GRANDFATHER CLOCK ===
+        function createGrandfatherClock() {
+            const group = new THREE.Group();
+
+            // Main body - tall cabinet
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.6 });
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2.2, 0.35), bodyMat);
+            body.position.y = 1.1;
+            body.castShadow = true;
+            group.add(body);
+
+            // Crown/top decorative piece
+            const crown = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.15, 0.38), bodyMat);
+            crown.position.y = 2.25;
+            group.add(crown);
+
+            // Pediment (triangular top)
+            const pedimentGeo = new THREE.BufferGeometry();
+            const pedimentVerts = new Float32Array([
+                -0.25, 0, 0.19,  0.25, 0, 0.19,  0, 0.2, 0.19,
+                -0.25, 0, -0.19, 0.25, 0, -0.19, 0, 0.2, -0.19,
+                -0.25, 0, 0.19, 0, 0.2, 0.19, 0, 0.2, -0.19, -0.25, 0, -0.19,
+                0.25, 0, 0.19, 0, 0.2, 0.19, 0, 0.2, -0.19, 0.25, 0, -0.19
+            ]);
+            pedimentGeo.setAttribute('position', new THREE.BufferAttribute(pedimentVerts, 3));
+            pedimentGeo.computeVertexNormals();
+
+            // Simplified crown top
+            const crownTop = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.1, 0.3), bodyMat);
+            crownTop.position.y = 2.38;
+            group.add(crownTop);
+
+            // Finial on top
+            const finial = new THREE.Mesh(
+                new THREE.SphereGeometry(0.04, 8, 6),
+                brassMaterial
+            );
+            finial.position.y = 2.48;
+            group.add(finial);
+
+            // Clock face area (upper section)
+            const faceBox = new THREE.Mesh(
+                new THREE.BoxGeometry(0.4, 0.5, 0.02),
+                new THREE.MeshStandardMaterial({ color: 0xfffff0, roughness: 0.4 })
+            );
+            faceBox.position.set(0, 1.85, 0.18);
+            group.add(faceBox);
+
+            // Clock face circle
+            const face = new THREE.Mesh(
+                new THREE.CircleGeometry(0.15, 24),
+                new THREE.MeshStandardMaterial({ color: 0xfffef5, roughness: 0.3 })
+            );
+            face.position.set(0, 1.85, 0.2);
+            group.add(face);
+
+            // Clock hands
+            const hourHand = new THREE.Mesh(
+                new THREE.BoxGeometry(0.015, 0.08, 0.01),
+                new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+            );
+            hourHand.position.set(0, 1.87, 0.21);
+            hourHand.rotation.z = Math.PI / 6;
+            group.add(hourHand);
+
+            const minuteHand = new THREE.Mesh(
+                new THREE.BoxGeometry(0.01, 0.11, 0.01),
+                new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+            );
+            minuteHand.position.set(0, 1.85, 0.21);
+            minuteHand.rotation.z = -Math.PI / 3;
+            group.add(minuteHand);
+
+            // Pendulum window (glass)
+            const pendulumWindow = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.25, 0.6),
+                new THREE.MeshStandardMaterial({
+                    color: 0x87ceeb,
+                    transparent: true,
+                    opacity: 0.2,
+                    roughness: 0.1
+                })
+            );
+            pendulumWindow.position.set(0, 1.15, 0.18);
+            group.add(pendulumWindow);
+
+            // Pendulum (grouped for animation)
+            const pendulumGroup = new THREE.Group();
+            pendulumGroup.position.set(0, 1.35, 0.1);
+
+            const pendulumRod = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.008, 0.008, 0.45, 8),
+                brassMaterial
+            );
+            pendulumRod.position.y = -0.25;
+            pendulumGroup.add(pendulumRod);
+
+            const pendulumDisk = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.08, 0.08, 0.02, 16),
+                antiqueGoldMaterial
+            );
+            pendulumDisk.position.y = -0.5;
+            pendulumDisk.rotation.x = Math.PI / 2;
+            pendulumGroup.add(pendulumDisk);
+
+            group.add(pendulumGroup);
+            group.userData.pendulum = pendulumGroup;
+
+            // Base feet
+            const footGeo = new THREE.BoxGeometry(0.12, 0.08, 0.1);
+            [[-0.18, 0.04, 0.12], [0.18, 0.04, 0.12], [-0.18, 0.04, -0.12], [0.18, 0.04, -0.12]].forEach(pos => {
+                const foot = new THREE.Mesh(footGeo, bodyMat);
+                foot.position.set(...pos);
+                group.add(foot);
+            });
+
+            // Decorative molding
+            const moldingTop = new THREE.Mesh(
+                new THREE.BoxGeometry(0.52, 0.04, 0.36),
+                new THREE.MeshStandardMaterial({ color: 0x2d1f14, roughness: 0.5 })
+            );
+            moldingTop.position.y = 2.15;
+            group.add(moldingTop);
+
+            const moldingMid = new THREE.Mesh(
+                new THREE.BoxGeometry(0.52, 0.03, 0.36),
+                new THREE.MeshStandardMaterial({ color: 0x2d1f14, roughness: 0.5 })
+            );
+            moldingMid.position.y = 1.55;
+            group.add(moldingMid);
+
+            return group;
+        }
+        const grandfatherClock = createGrandfatherClock();
+        grandfatherClock.position.set(-3.7, 0, -0.8);
+        grandfatherClock.rotation.y = Math.PI / 2.5;
+        scene.add(grandfatherClock);
+
+        // === VINTAGE TYPEWRITER ===
+        function createTypewriter() {
+            const group = new THREE.Group();
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.4 });
+
+            // Main body
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.12, 0.3), bodyMat);
+            body.position.y = 0.06;
+            group.add(body);
+
+            // Carriage
+            const carriage = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.08, 0.06), bodyMat);
+            carriage.position.set(0, 0.16, -0.08);
+            group.add(carriage);
+
+            // Paper holder
+            const paperHolder = new THREE.Mesh(
+                new THREE.BoxGeometry(0.32, 0.15, 0.01),
+                new THREE.MeshStandardMaterial({ color: 0x2a2a2a })
+            );
+            paperHolder.position.set(0, 0.22, -0.12);
+            paperHolder.rotation.x = -0.3;
+            group.add(paperHolder);
+
+            // Paper in typewriter
+            const paper = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.22, 0.28),
+                oldPaperMaterial
+            );
+            paper.position.set(0, 0.28, -0.11);
+            paper.rotation.x = -0.3;
+            group.add(paper);
+
+            // Keyboard area
+            const keyboard = new THREE.Mesh(
+                new THREE.BoxGeometry(0.28, 0.02, 0.12),
+                new THREE.MeshStandardMaterial({ color: 0x333333 })
+            );
+            keyboard.position.set(0, 0.13, 0.08);
+            keyboard.rotation.x = 0.2;
+            group.add(keyboard);
+
+            // Individual keys (simplified)
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const key = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.012, 0.012, 0.015, 8),
+                        ivoryMaterial
+                    );
+                    key.position.set(-0.11 + col * 0.03, 0.145 + row * 0.01, 0.12 - row * 0.035);
+                    group.add(key);
+                }
+            }
+
+            // Platen knobs
+            const knobGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.03, 8);
+            const knobL = new THREE.Mesh(knobGeo, bodyMat);
+            knobL.position.set(-0.2, 0.16, -0.08);
+            knobL.rotation.z = Math.PI / 2;
+            group.add(knobL);
+            const knobR = new THREE.Mesh(knobGeo, bodyMat);
+            knobR.position.set(0.2, 0.16, -0.08);
+            knobR.rotation.z = Math.PI / 2;
+            group.add(knobR);
+
+            return group;
+        }
+        const typewriter = createTypewriter();
+        typewriter.position.set(-2.2, 0.57, 1.8);
+        typewriter.rotation.y = -0.3;
+        // Place on side table
+        const typewriterTable = new THREE.Mesh(
+            new THREE.BoxGeometry(0.5, 0.55, 0.4),
+            woodDarkMaterial
+        );
+        typewriterTable.position.set(-2.2, 0.275, 1.8);
+        typewriterTable.castShadow = true;
+        scene.add(typewriterTable);
+        scene.add(typewriter);
+
+        // === OLD RADIO ===
+        function createVintageRadio() {
+            const group = new THREE.Group();
+            const cabinetMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.6 });
+
+            // Main cabinet
+            const cabinet = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 0.18), cabinetMat);
+            cabinet.position.y = 0.125;
+            cabinet.castShadow = true;
+            group.add(cabinet);
+
+            // Speaker grille
+            const grille = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.2, 0.12),
+                new THREE.MeshStandardMaterial({ color: 0xdaa520, roughness: 0.8 })
+            );
+            grille.position.set(0, 0.14, 0.091);
+            group.add(grille);
+
+            // Dial
+            const dial = new THREE.Mesh(
+                new THREE.CircleGeometry(0.04, 16),
+                new THREE.MeshStandardMaterial({ color: 0xfffff0, roughness: 0.3 })
+            );
+            dial.position.set(-0.1, 0.06, 0.091);
+            group.add(dial);
+
+            // Knobs
+            const knobGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.02, 8);
+            const knob1 = new THREE.Mesh(knobGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a }));
+            knob1.position.set(0.08, 0.06, 0.1);
+            knob1.rotation.x = Math.PI / 2;
+            group.add(knob1);
+            const knob2 = new THREE.Mesh(knobGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a }));
+            knob2.position.set(0.12, 0.06, 0.1);
+            knob2.rotation.x = Math.PI / 2;
+            group.add(knob2);
+
+            // Decorative top curve
+            const topTrim = new THREE.Mesh(
+                new THREE.BoxGeometry(0.36, 0.02, 0.19),
+                new THREE.MeshStandardMaterial({ color: 0x4a3020, roughness: 0.5 })
+            );
+            topTrim.position.y = 0.26;
+            group.add(topTrim);
+
+            return group;
+        }
+        const radio = createVintageRadio();
+        radio.position.set(2.2, 0.58, 1.95);
+        radio.rotation.y = -Math.PI / 6;
+        // Small shelf for radio
+        const radioShelf = new THREE.Mesh(
+            new THREE.BoxGeometry(0.5, 0.03, 0.25),
+            woodDarkMaterial
+        );
+        radioShelf.position.set(2.2, 0.565, 1.95);
+        const radioShelfBracket1 = new THREE.Mesh(
+            new THREE.BoxGeometry(0.03, 0.2, 0.2),
+            woodDarkMaterial
+        );
+        radioShelfBracket1.position.set(2.0, 0.45, 1.95);
+        const radioShelfBracket2 = new THREE.Mesh(
+            new THREE.BoxGeometry(0.03, 0.2, 0.2),
+            woodDarkMaterial
+        );
+        radioShelfBracket2.position.set(2.4, 0.45, 1.95);
+        scene.add(radioShelf);
+        scene.add(radioShelfBracket1);
+        scene.add(radioShelfBracket2);
+        scene.add(radio);
+
+        // === VINTAGE CAMERA ON TRIPOD ===
+        function createVintageCamera() {
+            const group = new THREE.Group();
+
+            // Camera body (box camera style)
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5 });
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.1, 0.15), bodyMat);
+            body.position.y = 0.95;
+            group.add(body);
+
+            // Lens
+            const lens = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.03, 0.035, 0.05, 12),
+                new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.3 })
+            );
+            lens.position.set(0, 0.95, 0.1);
+            lens.rotation.x = Math.PI / 2;
+            group.add(lens);
+
+            // Lens glass
+            const lensGlass = new THREE.Mesh(
+                new THREE.CircleGeometry(0.025, 12),
+                crystalMaterial
+            );
+            lensGlass.position.set(0, 0.95, 0.125);
+            group.add(lensGlass);
+
+            // Bellows
+            const bellows = new THREE.Mesh(
+                new THREE.BoxGeometry(0.1, 0.08, 0.04),
+                new THREE.MeshStandardMaterial({ color: 0x8b0000, roughness: 0.9 })
+            );
+            bellows.position.set(0, 0.95, 0.065);
+            group.add(bellows);
+
+            // Viewfinder
+            const viewfinder = new THREE.Mesh(
+                new THREE.BoxGeometry(0.04, 0.03, 0.04),
+                bodyMat
+            );
+            viewfinder.position.set(0, 1.02, -0.04);
+            group.add(viewfinder);
+
+            // Tripod legs
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x4a3728, roughness: 0.6 });
+            const legGeo = new THREE.CylinderGeometry(0.01, 0.012, 0.9, 6);
+            const angles = [0, 2.1, 4.2];
+            angles.forEach(angle => {
+                const leg = new THREE.Mesh(legGeo, legMat);
+                leg.position.set(Math.sin(angle) * 0.15, 0.45, Math.cos(angle) * 0.15);
+                leg.rotation.x = 0.15;
+                leg.rotation.z = Math.sin(angle) * 0.15;
+                group.add(leg);
+            });
+
+            // Tripod head
+            const tripodHead = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.04, 0.03, 0.05, 8),
+                legMat
+            );
+            tripodHead.position.y = 0.88;
+            group.add(tripodHead);
+
+            return group;
+        }
+        const camera = createVintageCamera();
+        camera.position.set(1.8, 0, -1);
+        camera.rotation.y = Math.PI / 4;
+        scene.add(camera);
+
+        // === CANDELABRA ===
+        function createCandelabra() {
+            const group = new THREE.Group();
+
+            // Base
+            const base = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.06, 0.08, 0.03, 12),
+                tarnishedBrassMaterial
+            );
+            base.position.y = 0.015;
+            group.add(base);
+
+            // Central stem
+            const stem = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.015, 0.02, 0.25, 8),
+                tarnishedBrassMaterial
+            );
+            stem.position.y = 0.14;
+            group.add(stem);
+
+            // Arms and candle holders
+            const createCandleArm = (angle, height) => {
+                const armGroup = new THREE.Group();
+
+                // Curved arm (simplified as angled cylinder)
+                const arm = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.008, 0.008, 0.1, 6),
+                    tarnishedBrassMaterial
+                );
+                arm.rotation.z = Math.PI / 3;
+                arm.position.set(0.04, 0, 0);
+                armGroup.add(arm);
+
+                // Candle cup
+                const cup = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.02, 0.015, 0.02, 8),
+                    tarnishedBrassMaterial
+                );
+                cup.position.set(0.08, 0.04, 0);
+                armGroup.add(cup);
+
+                // Candle
+                const candle = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.012, 0.015, 0.12, 8),
+                    ivoryMaterial
+                );
+                candle.position.set(0.08, 0.11, 0);
+                armGroup.add(candle);
+
+                // Dripping wax effect
+                const drip = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.015, 6, 4),
+                    ivoryMaterial
+                );
+                drip.position.set(0.08, 0.05, 0);
+                drip.scale.y = 1.5;
+                armGroup.add(drip);
+
+                armGroup.position.y = height;
+                armGroup.rotation.y = angle;
+                return armGroup;
+            };
+
+            group.add(createCandleArm(0, 0.22));
+            group.add(createCandleArm(Math.PI * 2/3, 0.22));
+            group.add(createCandleArm(Math.PI * 4/3, 0.22));
+
+            // Central candle holder
+            const centerCup = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.02, 0.015, 0.02, 8),
+                tarnishedBrassMaterial
+            );
+            centerCup.position.y = 0.28;
+            group.add(centerCup);
+
+            const centerCandle = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.012, 0.015, 0.15, 8),
+                ivoryMaterial
+            );
+            centerCandle.position.y = 0.36;
+            group.add(centerCandle);
+
+            return group;
+        }
+        const candelabra = createCandelabra();
+        candelabra.position.set(-0.3, 0.58, 1.8);
+        scene.add(candelabra);
+
+        // === MUSIC BOX ===
+        function createMusicBox() {
+            const group = new THREE.Group();
+
+            // Box body
+            const boxMat = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.5 });
+            const box = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.06, 0.1), boxMat);
+            box.position.y = 0.03;
+            group.add(box);
+
+            // Lid (slightly open)
+            const lid = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.01, 0.1), boxMat);
+            lid.position.set(0, 0.065, -0.045);
+            lid.rotation.x = -0.4;
+            group.add(lid);
+
+            // Interior velvet
+            const velvet = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.1, 0.08),
+                velvetMaterial
+            );
+            velvet.position.set(0, 0.06, 0);
+            velvet.rotation.x = -Math.PI / 2;
+            group.add(velvet);
+
+            // Small dancing figure
+            const figure = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.008, 0.005, 0.04, 8),
+                new THREE.MeshStandardMaterial({ color: 0xffe4c4 })
+            );
+            figure.position.set(0, 0.08, 0.01);
+            group.add(figure);
+
+            // Decorative inlay
+            const inlay = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.08, 0.06),
+                new THREE.MeshStandardMaterial({ color: 0xdaa520, roughness: 0.7 })
+            );
+            inlay.position.set(0, 0.061, 0);
+            inlay.rotation.x = -Math.PI / 2;
+            group.add(inlay);
+
+            return group;
+        }
+        const musicBox = createMusicBox();
+        musicBox.position.set(-0.15, 0.58, 1.85);
+        musicBox.rotation.y = 0.3;
+        scene.add(musicBox);
+
+        // === POCKET WATCH ===
+        function createPocketWatch() {
+            const group = new THREE.Group();
+
+            // Watch case
+            const caseOuter = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.025, 0.025, 0.008, 16),
+                antiqueGoldMaterial
+            );
+            caseOuter.rotation.x = Math.PI / 2;
+            group.add(caseOuter);
+
+            // Watch face
+            const face = new THREE.Mesh(
+                new THREE.CircleGeometry(0.022, 16),
+                new THREE.MeshStandardMaterial({ color: 0xfffff5, roughness: 0.3 })
+            );
+            face.position.z = 0.005;
+            group.add(face);
+
+            // Watch chain
+            const chain = new THREE.Mesh(
+                new THREE.TorusGeometry(0.04, 0.003, 4, 20, Math.PI),
+                antiqueGoldMaterial
+            );
+            chain.position.set(0.04, 0, 0);
+            chain.rotation.y = Math.PI / 2;
+            group.add(chain);
+
+            // Crown
+            const crown = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.005, 0.005, 0.01, 8),
+                antiqueGoldMaterial
+            );
+            crown.position.set(0, 0.028, 0);
+            group.add(crown);
+
+            return group;
+        }
+        const pocketWatch = createPocketWatch();
+        pocketWatch.position.set(-0.25, 0.585, 1.75);
+        pocketWatch.rotation.x = -Math.PI / 2;
+        pocketWatch.rotation.z = 0.5;
+        scene.add(pocketWatch);
+
+        // === OLD LETTERS AND DOCUMENTS ===
+        function createLetterPile() {
+            const group = new THREE.Group();
+
+            for (let i = 0; i < 6; i++) {
+                const letter = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.12, 0.08),
+                    oldPaperMaterial
+                );
+                letter.position.set(
+                    (Math.random() - 0.5) * 0.05,
+                    0.002 + i * 0.003,
+                    (Math.random() - 0.5) * 0.05
+                );
+                letter.rotation.x = -Math.PI / 2;
+                letter.rotation.z = (Math.random() - 0.5) * 0.4;
+                group.add(letter);
+            }
+
+            // Envelope
+            const envelope = new THREE.Mesh(
+                new THREE.BoxGeometry(0.14, 0.003, 0.09),
+                new THREE.MeshStandardMaterial({ color: 0xf5deb3, roughness: 0.8 })
+            );
+            envelope.position.set(0.05, 0.02, -0.02);
+            envelope.rotation.y = -0.2;
+            group.add(envelope);
+
+            // Wax seal on envelope
+            const seal = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.012, 0.012, 0.004, 8),
+                new THREE.MeshStandardMaterial({ color: 0x8b0000, roughness: 0.6 })
+            );
+            seal.position.set(0.05, 0.024, -0.02);
+            group.add(seal);
+
+            return group;
+        }
+        const letters = createLetterPile();
+        letters.position.set(0.2, 0.57, 1.9);
+        scene.add(letters);
+
+        // === VINTAGE TELEPHONE ===
+        function createVintageTelephone() {
+            const group = new THREE.Group();
+            const phoneMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.4 });
+
+            // Base
+            const base = new THREE.Mesh(
+                new THREE.BoxGeometry(0.15, 0.05, 0.12),
+                phoneMat
+            );
+            base.position.y = 0.025;
+            group.add(base);
+
+            // Dial area
+            const dialBase = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.04, 0.045, 0.02, 12),
+                phoneMat
+            );
+            dialBase.position.set(0, 0.06, 0);
+            group.add(dialBase);
+
+            // Dial
+            const dial = new THREE.Mesh(
+                new THREE.CircleGeometry(0.035, 16),
+                new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 })
+            );
+            dial.position.set(0, 0.071, 0);
+            dial.rotation.x = -Math.PI / 2;
+            group.add(dial);
+
+            // Handset cradle
+            const cradle = new THREE.Mesh(
+                new THREE.BoxGeometry(0.14, 0.02, 0.03),
+                phoneMat
+            );
+            cradle.position.set(0, 0.08, 0);
+            group.add(cradle);
+
+            // Handset
+            const handsetBody = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8),
+                phoneMat
+            );
+            handsetBody.position.set(0, 0.1, 0);
+            handsetBody.rotation.z = Math.PI / 2;
+            group.add(handsetBody);
+
+            // Earpiece
+            const earpiece = new THREE.Mesh(
+                new THREE.SphereGeometry(0.025, 8, 6),
+                phoneMat
+            );
+            earpiece.position.set(-0.07, 0.1, 0);
+            earpiece.scale.set(1, 0.7, 1);
+            group.add(earpiece);
+
+            // Mouthpiece
+            const mouthpiece = new THREE.Mesh(
+                new THREE.SphereGeometry(0.025, 8, 6),
+                phoneMat
+            );
+            mouthpiece.position.set(0.07, 0.1, 0);
+            mouthpiece.scale.set(1, 0.7, 1);
+            group.add(mouthpiece);
+
+            return group;
+        }
+        const telephone = createVintageTelephone();
+        telephone.position.set(3.3, 0.58, -1.5);
+        telephone.rotation.y = -Math.PI / 4;
+        // Small telephone table
+        const phoneTable = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.18, 0.15, 0.56, 8),
+            woodDarkMaterial
+        );
+        phoneTable.position.set(3.3, 0.28, -1.5);
+        scene.add(phoneTable);
+        scene.add(telephone);
+
+        // === OLD TOYS - WOODEN HORSE ===
+        function createWoodenHorse() {
+            const group = new THREE.Group();
+            const horseMat = new THREE.MeshStandardMaterial({ color: 0xc4a35a, roughness: 0.7 });
+
+            // Body
+            const body = new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, 0.04, 0.03),
+                horseMat
+            );
+            body.position.y = 0.06;
+            group.add(body);
+
+            // Head
+            const head = new THREE.Mesh(
+                new THREE.BoxGeometry(0.025, 0.04, 0.02),
+                horseMat
+            );
+            head.position.set(0.045, 0.085, 0);
+            head.rotation.z = 0.3;
+            group.add(head);
+
+            // Legs
+            const legGeo = new THREE.BoxGeometry(0.01, 0.04, 0.01);
+            [[-0.03, 0.02, 0.008], [0.03, 0.02, 0.008], [-0.03, 0.02, -0.008], [0.03, 0.02, -0.008]].forEach(pos => {
+                const leg = new THREE.Mesh(legGeo, horseMat);
+                leg.position.set(...pos);
+                group.add(leg);
+            });
+
+            // Rockers
+            const rockerMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.6 });
+            const rocker = new THREE.Mesh(
+                new THREE.TorusGeometry(0.05, 0.005, 4, 12, Math.PI),
+                rockerMat
+            );
+            rocker.position.set(0, 0.01, 0.012);
+            rocker.rotation.x = Math.PI / 2;
+            rocker.rotation.z = Math.PI;
+            group.add(rocker);
+
+            const rocker2 = rocker.clone();
+            rocker2.position.z = -0.012;
+            group.add(rocker2);
+
+            return group;
+        }
+        const woodenHorse = createWoodenHorse();
+        woodenHorse.position.set(-2.8, 0, 3);
+        woodenHorse.rotation.y = -0.4;
+        scene.add(woodenHorse);
+
+        // === VINTAGE GLOBE (larger, floor standing) ===
+        function createFloorGlobe() {
+            const group = new THREE.Group();
+
+            // Base
+            const base = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.15, 0.18, 0.03, 12),
+                woodDarkMaterial
+            );
+            base.position.y = 0.015;
+            group.add(base);
+
+            // Stand
+            const stand = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.02, 0.025, 0.7, 8),
+                woodDarkMaterial
+            );
+            stand.position.y = 0.38;
+            group.add(stand);
+
+            // Globe ring (meridian)
+            const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(0.18, 0.01, 8, 32),
+                tarnishedBrassMaterial
+            );
+            ring.position.y = 0.8;
+            ring.rotation.z = 0.4;
+            group.add(ring);
+
+            // Globe sphere
+            const globe = new THREE.Mesh(
+                new THREE.SphereGeometry(0.16, 24, 16),
+                new THREE.MeshStandardMaterial({
+                    color: 0x4a7c59,
+                    roughness: 0.6
+                })
+            );
+            globe.position.y = 0.8;
+            group.add(globe);
+
+            // Continents hint (simple bands)
+            const land = new THREE.Mesh(
+                new THREE.SphereGeometry(0.161, 24, 16, 0, Math.PI * 2, 0.4, 0.8),
+                new THREE.MeshStandardMaterial({ color: 0x8b7355, roughness: 0.7 })
+            );
+            land.position.y = 0.8;
+            land.rotation.y = 1.2;
+            group.add(land);
+
+            return group;
+        }
+        const floorGlobe = createFloorGlobe();
+        floorGlobe.position.set(3.2, 0, 0.5);
+        scene.add(floorGlobe);
+
+        // === STACKED SUITCASES ===
+        function createSuitcaseStack() {
+            const group = new THREE.Group();
+
+            const createSuitcase = (w, h, d, color, y) => {
+                const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
+                const suitcase = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+                suitcase.position.y = y;
+                suitcase.castShadow = true;
+
+                // Handle
+                const handle = new THREE.Mesh(
+                    new THREE.TorusGeometry(0.03, 0.008, 4, 8, Math.PI),
+                    new THREE.MeshStandardMaterial({ color: 0x4a3728 })
+                );
+                handle.position.set(0, y + h/2 + 0.02, 0);
+                handle.rotation.x = -Math.PI / 2;
+                group.add(handle);
+
+                // Latches
+                const latchGeo = new THREE.BoxGeometry(0.025, 0.015, 0.01);
+                const latchMat = new THREE.MeshStandardMaterial({ color: 0xb87333, metalness: 0.5 });
+                const latch1 = new THREE.Mesh(latchGeo, latchMat);
+                latch1.position.set(-0.08, y, d/2 + 0.005);
+                group.add(latch1);
+                const latch2 = new THREE.Mesh(latchGeo, latchMat);
+                latch2.position.set(0.08, y, d/2 + 0.005);
+                group.add(latch2);
+
+                return suitcase;
+            };
+
+            group.add(createSuitcase(0.5, 0.15, 0.35, 0x5c4033, 0.075));
+            group.add(createSuitcase(0.45, 0.12, 0.32, 0x8b4513, 0.21));
+            group.add(createSuitcase(0.35, 0.1, 0.28, 0x654321, 0.32));
+
+            return group;
+        }
+        const suitcases = createSuitcaseStack();
+        suitcases.position.set(-3.2, 0, 3.2);
+        suitcases.rotation.y = 0.2;
+        scene.add(suitcases);
+
+        // === ORNATE MIRROR ===
+        function createOrnateMirror() {
+            const group = new THREE.Group();
+
+            // Outer frame (ornate oval)
+            const frameOuter = new THREE.Mesh(
+                new THREE.TorusGeometry(0.35, 0.04, 8, 32),
+                antiqueGoldMaterial
+            );
+            group.add(frameOuter);
+
+            // Mirror surface
+            const mirror = new THREE.Mesh(
+                new THREE.CircleGeometry(0.32, 32),
+                new THREE.MeshStandardMaterial({
+                    color: 0xc0c0c0,
+                    metalness: 0.9,
+                    roughness: 0.1
+                })
+            );
+            mirror.position.z = 0.01;
+            group.add(mirror);
+
+            // Top ornament
+            const ornament = new THREE.Mesh(
+                new THREE.SphereGeometry(0.05, 8, 6),
+                antiqueGoldMaterial
+            );
+            ornament.position.y = 0.38;
+            ornament.scale.set(1.5, 1, 0.5);
+            group.add(ornament);
+
+            return group;
+        }
+        const mirror = createOrnateMirror();
+        mirror.position.set(3.95, 1.6, 1);
+        mirror.rotation.y = -Math.PI / 2;
+        scene.add(mirror);
+
+        // === SCATTERED PHOTOGRAPHS ===
+        function createScatteredPhotos() {
+            const group = new THREE.Group();
+            const sepia = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.8 });
+
+            for (let i = 0; i < 5; i++) {
+                // Photo
+                const photo = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.08, 0.06),
+                    sepia
+                );
+                photo.position.set(
+                    (Math.random() - 0.5) * 0.15,
+                    0.002 + i * 0.002,
+                    (Math.random() - 0.5) * 0.1
+                );
+                photo.rotation.x = -Math.PI / 2;
+                photo.rotation.z = (Math.random() - 0.5) * 0.8;
+                group.add(photo);
+
+                // White border
+                const border = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.09, 0.07),
+                    new THREE.MeshStandardMaterial({ color: 0xfffff0, roughness: 0.9 })
+                );
+                border.position.copy(photo.position);
+                border.position.y -= 0.001;
+                border.rotation.copy(photo.rotation);
+                group.add(border);
+            }
+
+            return group;
+        }
+        const photos = createScatteredPhotos();
+        photos.position.set(-1.5, 0.58, 1.5);
+        scene.add(photos);
+
+        // === ANTIQUE INK BOTTLE ===
+        const inkBottle = new THREE.Group();
+        const bottleBody = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.025, 0.03, 0.06, 8),
+            new THREE.MeshStandardMaterial({
+                color: 0x1a1a40,
+                transparent: true,
+                opacity: 0.8,
+                roughness: 0.2
+            })
+        );
+        bottleBody.position.y = 0.03;
+        inkBottle.add(bottleBody);
+        const bottleNeck = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.012, 0.015, 0.02, 8),
+            new THREE.MeshStandardMaterial({ color: 0x1a1a40, transparent: true, opacity: 0.8 })
+        );
+        bottleNeck.position.y = 0.07;
+        inkBottle.add(bottleNeck);
+        const bottleCork = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.01, 0.012, 0.015, 6),
+            new THREE.MeshStandardMaterial({ color: 0x8b7355, roughness: 0.9 })
+        );
+        bottleCork.position.y = 0.085;
+        inkBottle.add(bottleCork);
+        inkBottle.position.set(0.45, 0.57, 1.82);
+        scene.add(inkBottle);
+
+        // === QUILL PEN ===
+        const quill = new THREE.Group();
+        const feather = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.02, 0.15),
+            new THREE.MeshStandardMaterial({ color: 0xf5f5f5, side: THREE.DoubleSide })
+        );
+        feather.rotation.x = -0.1;
+        feather.position.y = 0.075;
+        quill.add(feather);
+        const quillTip = new THREE.Mesh(
+            new THREE.ConeGeometry(0.003, 0.03, 4),
+            new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+        );
+        quillTip.position.y = -0.015;
+        quillTip.rotation.x = Math.PI;
+        quill.add(quillTip);
+        quill.position.set(0.48, 0.585, 1.85);
+        quill.rotation.z = -0.5;
+        quill.rotation.x = -Math.PI / 2;
+        scene.add(quill);
+
+        // === MORE WALL DECORATIONS ===
+        // Coat hooks with items
+        const coatHook = new THREE.Mesh(
+            new THREE.TorusGeometry(0.03, 0.008, 6, 8, Math.PI),
+            tarnishedBrassMaterial
+        );
+        coatHook.position.set(-3.95, 1.4, 2.5);
+        coatHook.rotation.y = Math.PI / 2;
+        coatHook.rotation.z = -Math.PI / 4;
+        scene.add(coatHook);
+
+        // Hat on hook
+        const hatCrown = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.08, 0.1, 0.1, 12),
+            new THREE.MeshStandardMaterial({ color: 0x2f2f2f, roughness: 0.8 })
+        );
+        hatCrown.position.set(-3.88, 1.42, 2.5);
+        hatCrown.rotation.z = 0.3;
+        scene.add(hatCrown);
+        const hatBrim = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.14, 0.14, 0.015, 16),
+            new THREE.MeshStandardMaterial({ color: 0x2f2f2f, roughness: 0.8 })
+        );
+        hatBrim.position.set(-3.88, 1.37, 2.5);
+        hatBrim.rotation.z = 0.3;
+        scene.add(hatBrim);
+
+        // === ADDITIONAL BOOK STACKS FOR CLUTTER ===
+        const extraBooks1 = createBookStack(6, 0);
+        extraBooks1.position.set(0.8, 0, 3);
+        extraBooks1.rotation.y = 0.7;
+        scene.add(extraBooks1);
+
+        const extraBooks2 = createBookStack(4, 0);
+        extraBooks2.position.set(-1.2, 0, 2.8);
+        scene.add(extraBooks2);
+
+        const extraBooks3 = createBookStack(2, 0);
+        extraBooks3.position.set(2, 0, 0.5);
+        extraBooks3.rotation.y = -0.5;
+        scene.add(extraBooks3);
+
+        // === MORE PICTURE FRAMES ON BACK WALL ===
+        const frame4 = createPictureFrame(0.5, 0.4);
+        frame4.position.set(-1.5, 1.8, 3.95);
+        frame4.rotation.y = Math.PI;
+        scene.add(frame4);
+
+        const frame5 = createPictureFrame(0.3, 0.4);
+        frame5.position.set(-0.8, 1.6, 3.95);
+        frame5.rotation.y = Math.PI;
+        scene.add(frame5);
+
+        const frame6 = createPictureFrame(0.45, 0.35);
+        frame6.position.set(1.5, 1.7, 3.95);
+        frame6.rotation.y = Math.PI;
+        scene.add(frame6);
+
+        // === WALL CLOCK (smaller) ===
+        function createWallClock() {
+            const group = new THREE.Group();
+
+            // Clock body
+            const body = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.2, 0.2, 0.04, 24),
+                woodDarkMaterial
+            );
+            body.rotation.x = Math.PI / 2;
+            group.add(body);
+
+            // Clock face
+            const face = new THREE.Mesh(
+                new THREE.CircleGeometry(0.17, 24),
+                new THREE.MeshStandardMaterial({ color: 0xfffff5, roughness: 0.3 })
+            );
+            face.position.z = 0.021;
+            group.add(face);
+
+            // Hour markers
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                const marker = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.01, 0.02, 0.01),
+                    new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+                );
+                marker.position.set(
+                    Math.sin(angle) * 0.14,
+                    Math.cos(angle) * 0.14,
+                    0.022
+                );
+                marker.rotation.z = -angle;
+                group.add(marker);
+            }
+
+            // Hands
+            const hourHand = new THREE.Mesh(
+                new THREE.BoxGeometry(0.015, 0.08, 0.01),
+                new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+            );
+            hourHand.position.set(0.02, 0.02, 0.025);
+            hourHand.rotation.z = -Math.PI / 4;
+            group.add(hourHand);
+
+            const minuteHand = new THREE.Mesh(
+                new THREE.BoxGeometry(0.01, 0.12, 0.01),
+                new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+            );
+            minuteHand.position.set(-0.04, 0.03, 0.025);
+            minuteHand.rotation.z = Math.PI / 3;
+            group.add(minuteHand);
+
+            // Center cap
+            const cap = new THREE.Mesh(
+                new THREE.SphereGeometry(0.015, 8, 6),
+                brassMaterial
+            );
+            cap.position.z = 0.025;
+            group.add(cap);
+
+            return group;
+        }
+        const wallClock = createWallClock();
+        wallClock.position.set(0.5, 2.2, 3.95);
+        wallClock.rotation.y = Math.PI;
+        scene.add(wallClock);
+
+        // === SMALL SHELF WITH KNICKKNACKS ===
+        const smallShelf = new THREE.Mesh(
+            new THREE.BoxGeometry(0.6, 0.02, 0.12),
+            woodDarkMaterial
+        );
+        smallShelf.position.set(3.95, 1.3, -0.5);
+        smallShelf.rotation.y = -Math.PI / 2;
+        scene.add(smallShelf);
+
+        // Shelf brackets
+        const bracket1 = new THREE.Mesh(
+            new THREE.BoxGeometry(0.02, 0.1, 0.1),
+            woodDarkMaterial
+        );
+        bracket1.position.set(3.93, 1.25, -0.25);
+        scene.add(bracket1);
+        const bracket2 = new THREE.Mesh(
+            new THREE.BoxGeometry(0.02, 0.1, 0.1),
+            woodDarkMaterial
+        );
+        bracket2.position.set(3.93, 1.25, -0.75);
+        scene.add(bracket2);
+
+        // Small items on shelf
+        // Tiny vase
+        const tinyVase = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.02, 0.025, 0.06, 8),
+            new THREE.MeshStandardMaterial({ color: 0x4682b4, roughness: 0.4 })
+        );
+        tinyVase.position.set(3.9, 1.34, -0.4);
+        scene.add(tinyVase);
+
+        // Small figurine
+        const figurine = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.01, 0.015, 0.05, 6),
+            new THREE.MeshStandardMaterial({ color: 0xffe4c4, roughness: 0.6 })
+        );
+        figurine.position.set(3.9, 1.335, -0.55);
+        scene.add(figurine);
+
+        // Small box
+        const trinketBox = new THREE.Mesh(
+            new THREE.BoxGeometry(0.05, 0.03, 0.04),
+            new THREE.MeshStandardMaterial({ color: 0x8b0000, roughness: 0.7 })
+        );
+        trinketBox.position.set(3.9, 1.325, -0.7);
+        scene.add(trinketBox);
+
+        // === COBWEBS IN CORNERS (subtle detail) ===
+        const webMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.15,
+            side: THREE.DoubleSide
+        });
+
+        const createCobweb = () => {
+            const group = new THREE.Group();
+            // Simplified triangular web
+            const webGeo = new THREE.BufferGeometry();
+            const verts = new Float32Array([
+                0, 0, 0,
+                0.3, -0.15, 0,
+                0, -0.3, 0
+            ]);
+            webGeo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+            webGeo.computeVertexNormals();
+
+            const web = new THREE.Mesh(webGeo, webMaterial);
+            group.add(web);
+            return group;
+        };
+
+        const web1 = createCobweb();
+        web1.position.set(-3.95, 3.15, -3.95);
+        scene.add(web1);
+
+        const web2 = createCobweb();
+        web2.position.set(3.95, 3.15, -3.95);
+        web2.rotation.y = -Math.PI / 2;
+        scene.add(web2);
+
+        // === FALLEN LEAVES (scattered on floor for aged effect) ===
+        const leafMaterial = new THREE.MeshStandardMaterial({
+            color: 0x8b4513,
+            roughness: 0.9,
+            side: THREE.DoubleSide
+        });
+
+        for (let i = 0; i < 8; i++) {
+            const leaf = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.03, 0.04),
+                leafMaterial
+            );
+            leaf.position.set(
+                (Math.random() - 0.5) * 6,
+                0.005,
+                (Math.random() - 0.5) * 6
+            );
+            leaf.rotation.x = -Math.PI / 2 + (Math.random() - 0.5) * 0.2;
+            leaf.rotation.z = Math.random() * Math.PI * 2;
+            scene.add(leaf);
+        }
+
+        // ============================================
         // INTERACTION SYSTEM
         // ============================================
 
@@ -1054,6 +2302,11 @@
                 if (positions[i + 1] < 0) positions[i + 1] = roomHeight;
             }
             dustParticles.geometry.attributes.position.needsUpdate = true;
+
+            // Animate grandfather clock pendulum
+            if (grandfatherClock.userData.pendulum) {
+                grandfatherClock.userData.pendulum.rotation.z = Math.sin(elapsed * 1.5) * 0.15;
+            }
 
             if (controls.isLocked) {
                 velocity.x -= velocity.x * 8.0 * delta;
