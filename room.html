@@ -220,7 +220,7 @@
         scene.fog = new THREE.Fog(0xc9b99a, 6, 18); // Closer fog for dusty atmosphere
 
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 1.6, 2);
+        camera.position.set(0.5, 1.6, 2.5); // Moved to avoid collision with side table
 
         // ============================================
         // PLAYER BODY (visible hands/arms)
@@ -930,22 +930,22 @@
                 group.add(leg);
             });
 
-            // Throw pillow
+            // Throw pillow (smaller, more natural size)
             const pillow = new THREE.Mesh(
-                new THREE.BoxGeometry(0.3, 0.25, 0.08),
+                new THREE.BoxGeometry(0.2, 0.08, 0.15),
                 new THREE.MeshStandardMaterial({ color: 0xdaa520, roughness: 0.9 })
             );
-            pillow.position.set(0.15, 0.6, -0.1);
-            pillow.rotation.set(0.3, 0.2, 0.1);
+            pillow.position.set(0.1, 0.52, -0.15);
+            pillow.rotation.set(0.2, 0.15, 0.05);
             group.add(pillow);
 
-            // Draped blanket
+            // Draped blanket (smaller, folded look)
             const blanket = new THREE.Mesh(
-                new THREE.PlaneGeometry(0.6, 0.8),
+                new THREE.PlaneGeometry(0.35, 0.45),
                 new THREE.MeshStandardMaterial({ color: 0x8b4557, side: THREE.DoubleSide, roughness: 0.95 })
             );
-            blanket.position.set(-0.25, 0.5, 0.1);
-            blanket.rotation.set(-0.8, 0.3, 0.2);
+            blanket.position.set(-0.15, 0.48, 0.05);
+            blanket.rotation.set(-0.6, 0.2, 0.1);
             group.add(blanket);
 
             group.position.set(-1, 0, 1.5);
@@ -2149,14 +2149,14 @@
             new THREE.CylinderGeometry(0.08, 0.1, 0.1, 12),
             new THREE.MeshStandardMaterial({ color: 0x2f2f2f, roughness: 0.8 })
         );
-        hatCrown.position.set(-3.88, 1.42, 2.5);
+        hatCrown.position.set(-3.88, 1.32, 2.5); // Lowered to hang on hook
         hatCrown.rotation.z = 0.3;
         scene.add(hatCrown);
         const hatBrim = new THREE.Mesh(
             new THREE.CylinderGeometry(0.14, 0.14, 0.015, 16),
             new THREE.MeshStandardMaterial({ color: 0x2f2f2f, roughness: 0.8 })
         );
-        hatBrim.position.set(-3.88, 1.37, 2.5);
+        hatBrim.position.set(-3.88, 1.27, 2.5); // Lowered to hang on hook
         hatBrim.rotation.z = 0.3;
         scene.add(hatBrim);
 
@@ -2255,7 +2255,7 @@
             return group;
         }
         const wallClock = createWallClock();
-        wallClock.position.set(0.5, 2.2, 3.95);
+        wallClock.position.set(2.5, 2.2, 3.95); // Moved away from door
         wallClock.rotation.y = Math.PI;
         scene.add(wallClock);
 
