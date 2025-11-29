@@ -216,11 +216,91 @@
         // Scene setup - warm, sunlit atmosphere
         updateProgress(15, 'Creating scene...');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xfff8f0);
-        scene.fog = new THREE.Fog(0xfff8f0, 12, 30);
+        scene.background = new THREE.Color(0xd4c4b0); // Warmer, dustier tone
+        scene.fog = new THREE.Fog(0xc9b99a, 6, 18); // Closer fog for dusty atmosphere
 
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
         camera.position.set(0, 1.6, 2);
+
+        // ============================================
+        // PLAYER BODY (visible hands/arms)
+        // ============================================
+
+        const playerBodyGroup = new THREE.Group();
+
+        const skinMaterial = new THREE.MeshStandardMaterial({
+            color: 0xdeb887, // Skin tone
+            roughness: 0.7
+        });
+        const sleeveMaterial = new THREE.MeshStandardMaterial({
+            color: 0x3d3d3d, // Dark sleeve
+            roughness: 0.8
+        });
+
+        function createArm(isRight) {
+            const armGroup = new THREE.Group();
+            const side = isRight ? 1 : -1;
+
+            // Forearm (sleeve)
+            const forearm = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.04, 0.045, 0.25, 8),
+                sleeveMaterial
+            );
+            forearm.rotation.x = Math.PI / 2.5;
+            forearm.rotation.z = side * 0.3;
+            forearm.position.set(side * 0.18, -0.2, -0.35);
+            armGroup.add(forearm);
+
+            // Wrist/Hand connection
+            const wrist = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.025, 0.035, 0.08, 8),
+                skinMaterial
+            );
+            wrist.rotation.x = Math.PI / 2.8;
+            wrist.rotation.z = side * 0.25;
+            wrist.position.set(side * 0.2, -0.32, -0.45);
+            armGroup.add(wrist);
+
+            // Hand (palm)
+            const hand = new THREE.Mesh(
+                new THREE.BoxGeometry(0.06, 0.02, 0.08),
+                skinMaterial
+            );
+            hand.rotation.x = -0.2;
+            hand.rotation.z = side * 0.15;
+            hand.position.set(side * 0.21, -0.38, -0.52);
+            armGroup.add(hand);
+
+            // Fingers (simplified)
+            const fingerGeo = new THREE.CylinderGeometry(0.008, 0.007, 0.04, 6);
+            for (let i = 0; i < 4; i++) {
+                const finger = new THREE.Mesh(fingerGeo, skinMaterial);
+                finger.rotation.x = Math.PI / 2 - 0.1;
+                finger.position.set(
+                    side * 0.21 + (i - 1.5) * 0.015 * side,
+                    -0.39,
+                    -0.58 + Math.abs(i - 1.5) * 0.008
+                );
+                armGroup.add(finger);
+            }
+
+            // Thumb
+            const thumb = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.01, 0.008, 0.035, 6),
+                skinMaterial
+            );
+            thumb.rotation.x = Math.PI / 2.5;
+            thumb.rotation.z = side * 0.8;
+            thumb.position.set(side * 0.185, -0.37, -0.5);
+            armGroup.add(thumb);
+
+            return armGroup;
+        }
+
+        playerBodyGroup.add(createArm(false)); // Left arm
+        playerBodyGroup.add(createArm(true));  // Right arm
+        camera.add(playerBodyGroup);
+        scene.add(camera); // Add camera to scene so player body is rendered
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -281,16 +361,16 @@
         // LIGHTING - Warm sunlight streaming through
         // ============================================
 
-        // Strong ambient for base illumination
-        const ambientLight = new THREE.AmbientLight(0xfff5e6, 1.5);
+        // Lower ambient for more dramatic shadows (Edith Finch style)
+        const ambientLight = new THREE.AmbientLight(0xd4c4b0, 0.4);
         scene.add(ambientLight);
 
-        // Hemisphere light for natural sky/ground lighting
-        const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x8b7355, 1.0);
+        // Hemisphere light - warm ceiling, cool floor bounce
+        const hemiLight = new THREE.HemisphereLight(0xffecd2, 0x5c4033, 0.6);
         scene.add(hemiLight);
 
-        // Main sunlight through window
-        const sunLight = new THREE.DirectionalLight(0xffeaa7, 3.0);
+        // Main sunlight through window - golden hour feel
+        const sunLight = new THREE.DirectionalLight(0xffd27f, 2.5);
         sunLight.position.set(5, 8, -2);
         sunLight.castShadow = true;
         sunLight.shadow.mapSize.width = 2048;
@@ -304,17 +384,32 @@
         sunLight.shadow.bias = -0.0001;
         scene.add(sunLight);
 
-        // Secondary warm fill light
-        const fillLight = new THREE.PointLight(0xffd699, 1.5, 15);
+        // Warm fill light from lamp area
+        const fillLight = new THREE.PointLight(0xffb347, 1.2, 8);
         fillLight.position.set(-2, 2.5, 0);
         scene.add(fillLight);
 
-        // Soft light from window area
-        const windowLight = new THREE.SpotLight(0xfffaf0, 2.5, 12, Math.PI / 3, 0.3);
+        // Strong warm light from window - volumetric feel
+        const windowLight = new THREE.SpotLight(0xffefd5, 3.5, 10, Math.PI / 4, 0.5);
         windowLight.position.set(3.8, 2.5, -2);
-        windowLight.target.position.set(0, 0, 0);
+        windowLight.target.position.set(-1, 0, 1);
+        windowLight.castShadow = true;
         scene.add(windowLight);
         scene.add(windowLight.target);
+
+        // Subtle cool rim light from back corners (creates depth)
+        const rimLight1 = new THREE.PointLight(0x6b8e9f, 0.5, 6);
+        rimLight1.position.set(-3.5, 2.8, -3.5);
+        scene.add(rimLight1);
+
+        const rimLight2 = new THREE.PointLight(0x8b9dc3, 0.4, 5);
+        rimLight2.position.set(3.5, 2.8, 3.5);
+        scene.add(rimLight2);
+
+        // Warm glow from desk lamp area
+        const deskLampGlow = new THREE.PointLight(0xffa500, 0.8, 3);
+        deskLampGlow.position.set(1.9, 1.2, -2.55);
+        scene.add(deskLampGlow);
 
         // ============================================
         updateProgress(25, 'Creating materials...');
@@ -322,49 +417,56 @@
         // ============================================
 
         const wallMaterial = new THREE.MeshStandardMaterial({
-            color: 0xf5e6d3,
-            roughness: 0.9
+            color: 0xf0e4d0,
+            roughness: 0.92,
+            metalness: 0.0
         });
 
         const wallpaperMaterial = new THREE.MeshStandardMaterial({
-            color: 0xe8d4c4,
-            roughness: 0.85
+            color: 0xdccbb8,
+            roughness: 0.88,
+            metalness: 0.0
         });
 
         const floorMaterial = new THREE.MeshStandardMaterial({
-            color: 0x8b6914,
-            roughness: 0.7
+            color: 0x7a5a1e,
+            roughness: 0.75,
+            metalness: 0.0
         });
 
         const woodDarkMaterial = new THREE.MeshStandardMaterial({
-            color: 0x4a3728,
-            roughness: 0.6
+            color: 0x3d2920,
+            roughness: 0.65,
+            metalness: 0.0
         });
 
         const woodLightMaterial = new THREE.MeshStandardMaterial({
-            color: 0x8b7355,
-            roughness: 0.65
+            color: 0x785c42,
+            roughness: 0.68,
+            metalness: 0.0
         });
 
         const fabricMaterial = new THREE.MeshStandardMaterial({
-            color: 0x8b4557,
-            roughness: 0.9
+            color: 0x7a3040,
+            roughness: 0.95,
+            metalness: 0.0
         });
 
         const leatherMaterial = new THREE.MeshStandardMaterial({
-            color: 0x5c4033,
-            roughness: 0.7
+            color: 0x4a3028,
+            roughness: 0.75,
+            metalness: 0.05
         });
 
         const bookColors = [
-            new THREE.MeshStandardMaterial({ color: 0x8b0000 }),
-            new THREE.MeshStandardMaterial({ color: 0x2f4f4f }),
-            new THREE.MeshStandardMaterial({ color: 0x4a3728 }),
-            new THREE.MeshStandardMaterial({ color: 0x1a3a5c }),
-            new THREE.MeshStandardMaterial({ color: 0x556b2f }),
-            new THREE.MeshStandardMaterial({ color: 0x4a0040 }),
-            new THREE.MeshStandardMaterial({ color: 0xdaa520 }),
-            new THREE.MeshStandardMaterial({ color: 0x2e2e2e })
+            new THREE.MeshStandardMaterial({ color: 0x8b0000, roughness: 0.8 }),
+            new THREE.MeshStandardMaterial({ color: 0x2f4f4f, roughness: 0.85 }),
+            new THREE.MeshStandardMaterial({ color: 0x3d2920, roughness: 0.75 }),
+            new THREE.MeshStandardMaterial({ color: 0x1a3050, roughness: 0.8 }),
+            new THREE.MeshStandardMaterial({ color: 0x4a5a2a, roughness: 0.82 }),
+            new THREE.MeshStandardMaterial({ color: 0x4a0030, roughness: 0.85 }),
+            new THREE.MeshStandardMaterial({ color: 0xc49520, roughness: 0.7 }),
+            new THREE.MeshStandardMaterial({ color: 0x252525, roughness: 0.88 })
         ];
 
         const paperMaterial = new THREE.MeshStandardMaterial({
@@ -1297,14 +1399,14 @@
             return group;
         }
         const typewriter = createTypewriter();
-        typewriter.position.set(-2.2, 0.57, 1.8);
-        typewriter.rotation.y = -0.3;
-        // Place on side table
+        typewriter.position.set(-3.6, 0.57, 1.2);
+        typewriter.rotation.y = Math.PI / 2; // Face into room
+        // Place on side table against left wall
         const typewriterTable = new THREE.Mesh(
             new THREE.BoxGeometry(0.5, 0.55, 0.4),
             woodDarkMaterial
         );
-        typewriterTable.position.set(-2.2, 0.275, 1.8);
+        typewriterTable.position.set(-3.6, 0.275, 1.2);
         typewriterTable.castShadow = true;
         scene.add(typewriterTable);
         scene.add(typewriter);
@@ -1358,24 +1460,25 @@
             return group;
         }
         const radio = createVintageRadio();
-        radio.position.set(2.2, 0.58, 1.95);
-        radio.rotation.y = -Math.PI / 6;
-        // Small shelf for radio
+        radio.position.set(3.85, 1.1, 1.5);
+        radio.rotation.y = -Math.PI / 2; // Face into room
+        // Small shelf for radio - attached to right wall
         const radioShelf = new THREE.Mesh(
             new THREE.BoxGeometry(0.5, 0.03, 0.25),
             woodDarkMaterial
         );
-        radioShelf.position.set(2.2, 0.565, 1.95);
+        radioShelf.position.set(3.87, 1.08, 1.5);
+        radioShelf.rotation.y = -Math.PI / 2;
         const radioShelfBracket1 = new THREE.Mesh(
-            new THREE.BoxGeometry(0.03, 0.2, 0.2),
+            new THREE.BoxGeometry(0.03, 0.15, 0.2),
             woodDarkMaterial
         );
-        radioShelfBracket1.position.set(2.0, 0.45, 1.95);
+        radioShelfBracket1.position.set(3.92, 1.0, 1.3);
         const radioShelfBracket2 = new THREE.Mesh(
-            new THREE.BoxGeometry(0.03, 0.2, 0.2),
+            new THREE.BoxGeometry(0.03, 0.15, 0.2),
             woodDarkMaterial
         );
-        radioShelfBracket2.position.set(2.4, 0.45, 1.95);
+        radioShelfBracket2.position.set(3.92, 1.0, 1.7);
         scene.add(radioShelf);
         scene.add(radioShelfBracket1);
         scene.add(radioShelfBracket2);
@@ -1672,7 +1775,8 @@
             return group;
         }
         const letters = createLetterPile();
-        letters.position.set(0.2, 0.57, 1.9);
+        letters.position.set(2.3, 0.78, -2.6); // On the desk
+        letters.rotation.y = -Math.PI / 5;
         scene.add(letters);
 
         // === VINTAGE TELEPHONE ===
@@ -1743,14 +1847,14 @@
             return group;
         }
         const telephone = createVintageTelephone();
-        telephone.position.set(3.3, 0.58, -1.5);
-        telephone.rotation.y = -Math.PI / 4;
-        // Small telephone table
+        telephone.position.set(3.6, 0.58, -2.5);
+        telephone.rotation.y = -Math.PI / 3;
+        // Small telephone table near right wall
         const phoneTable = new THREE.Mesh(
             new THREE.CylinderGeometry(0.18, 0.15, 0.56, 8),
             woodDarkMaterial
         );
-        phoneTable.position.set(3.3, 0.28, -1.5);
+        phoneTable.position.set(3.6, 0.28, -2.5);
         scene.add(phoneTable);
         scene.add(telephone);
 
@@ -1802,8 +1906,8 @@
             return group;
         }
         const woodenHorse = createWoodenHorse();
-        woodenHorse.position.set(-2.8, 0, 3);
-        woodenHorse.rotation.y = -0.4;
+        woodenHorse.position.set(-3.2, 0, 3.5); // Near back-left corner
+        woodenHorse.rotation.y = -0.6;
         scene.add(woodenHorse);
 
         // === VINTAGE GLOBE (larger, floor standing) ===
@@ -1900,7 +2004,7 @@
             return group;
         }
         const suitcases = createSuitcaseStack();
-        suitcases.position.set(-3.2, 0, 3.2);
+        suitcases.position.set(1.5, 0, 3.5); // Near the door, as if just arrived
         suitcases.rotation.y = 0.2;
         scene.add(suitcases);
 
@@ -1977,7 +2081,7 @@
             return group;
         }
         const photos = createScatteredPhotos();
-        photos.position.set(-1.5, 0.58, 1.5);
+        photos.position.set(-0.35, 0.57, 1.75); // On the side table
         scene.add(photos);
 
         // === ANTIQUE INK BOTTLE ===
@@ -2005,7 +2109,7 @@
         );
         bottleCork.position.y = 0.085;
         inkBottle.add(bottleCork);
-        inkBottle.position.set(0.45, 0.57, 1.82);
+        inkBottle.position.set(2.7, 0.78, -2.5); // On the desk
         scene.add(inkBottle);
 
         // === QUILL PEN ===
@@ -2024,8 +2128,8 @@
         quillTip.position.y = -0.015;
         quillTip.rotation.x = Math.PI;
         quill.add(quillTip);
-        quill.position.set(0.48, 0.585, 1.85);
-        quill.rotation.z = -0.5;
+        quill.position.set(2.65, 0.79, -2.55); // On the desk near ink bottle
+        quill.rotation.z = -0.3;
         quill.rotation.x = -Math.PI / 2;
         scene.add(quill);
 
@@ -2304,6 +2408,54 @@
         });
 
         // ============================================
+        // COLLISION DETECTION SYSTEM
+        // ============================================
+
+        const collisionBoxes = [
+            // Format: { minX, maxX, minZ, maxZ } - AABB boxes for furniture
+            // Bookshelf (against back-left wall)
+            { minX: -3.95, maxX: -3.0, minZ: -3.5, maxZ: -1.5 },
+            // Desk (against back-right wall)
+            { minX: 1.8, maxX: 3.3, minZ: -3.5, maxZ: -2.3 },
+            // Armchair
+            { minX: -1.5, maxX: -0.5, minZ: 1.1, maxZ: 1.9 },
+            // Side table
+            { minX: -0.55, maxX: -0.05, minZ: 1.55, maxZ: 2.05 },
+            // Grandfather clock
+            { minX: -3.95, maxX: -3.35, minZ: -1.15, maxZ: -0.45 },
+            // Typewriter table
+            { minX: -3.9, maxX: -3.3, minZ: 0.95, maxZ: 1.45 },
+            // Phone table
+            { minX: 3.35, maxX: 3.85, minZ: -2.75, maxZ: -2.25 },
+            // Floor globe
+            { minX: 2.95, maxX: 3.45, minZ: 0.25, maxZ: 0.75 },
+            // Floor lamp
+            { minX: 2.6, maxX: 3.0, minZ: 1.3, maxZ: 1.7 },
+            // Vintage camera on tripod
+            { minX: 1.55, maxX: 2.05, minZ: -1.25, maxZ: -0.75 },
+            // Suitcases near door
+            { minX: 1.2, maxX: 1.8, minZ: 3.2, maxZ: 3.8 },
+            // Wooden horse
+            { minX: -3.35, maxX: -3.05, minZ: 3.35, maxZ: 3.65 },
+            // Plants
+            { minX: 3.1, maxX: 3.5, minZ: -3.55, maxZ: -3.05 },
+            { minX: -3.75, maxX: -3.25, minZ: 2.25, maxZ: 2.75 },
+        ];
+
+        const playerRadius = 0.3; // Player collision radius
+
+        function checkCollision(x, z) {
+            for (const box of collisionBoxes) {
+                // Expand the box by player radius for collision checking
+                if (x > box.minX - playerRadius && x < box.maxX + playerRadius &&
+                    z > box.minZ - playerRadius && z < box.maxZ + playerRadius) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ============================================
         updateProgress(95, 'Starting animation...');
         // ANIMATION LOOP
         // ============================================
@@ -2345,13 +2497,35 @@
                 if (moveForward || moveBackward) velocity.z -= direction.z * 12.0 * delta;
                 if (moveLeft || moveRight) velocity.x -= direction.x * 12.0 * delta;
 
+                // Store original position for collision resolution
+                const prevX = camera.position.x;
+                const prevZ = camera.position.z;
+
+                // Apply movement
                 controls.moveRight(-velocity.x * delta);
                 controls.moveForward(-velocity.z * delta);
 
-                // Bounds
+                // Room bounds
                 const bounds = 3.4;
                 camera.position.x = Math.max(-bounds, Math.min(bounds, camera.position.x));
                 camera.position.z = Math.max(-bounds, Math.min(bounds, camera.position.z));
+
+                // Collision detection - check X and Z separately for sliding behavior
+                if (checkCollision(camera.position.x, camera.position.z)) {
+                    // Try moving only in X
+                    if (!checkCollision(camera.position.x, prevZ)) {
+                        camera.position.z = prevZ;
+                    }
+                    // Try moving only in Z
+                    else if (!checkCollision(prevX, camera.position.z)) {
+                        camera.position.x = prevX;
+                    }
+                    // Neither works, revert both
+                    else {
+                        camera.position.x = prevX;
+                        camera.position.z = prevZ;
+                    }
+                }
 
                 checkInteraction();
             }
