@@ -2666,6 +2666,19 @@
 
         // Initialize
         initModels().then(() => {
+            updateProgress(98, 'Compiling shaders...');
+
+            // Force GPU shader compilation and texture/geometry upload
+            // This is the critical step that prevents FPS drops after loading
+            // Without this, shader compilation happens on first visible frame
+            renderer.compile(scene, camera);
+
+            updateProgress(99, 'Preparing first frame...');
+
+            // Render one frame to force all GPU uploads (textures, buffers)
+            // This ensures everything is GPU-ready before we show the scene
+            renderer.render(scene, camera);
+
             updateProgress(100, 'Ready!');
             setTimeout(() => {
                 loading.style.opacity = '0';
