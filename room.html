@@ -207,6 +207,83 @@
     <script type="module">
         import * as THREE from 'three';
         import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+        // ============================================
+        // MODEL LOADING SYSTEM
+        // ============================================
+
+        const gltfLoader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        gltfLoader.setDRACOLoader(dracoLoader);
+
+        // Model configuration - maps model names to files and transforms
+        // armchair.glb includes: leather armchair, coffee table, floor lamp (all in one)
+        // gramophone.glb replaces the old radio
+        const MODEL_CONFIG = {
+            bookshelf: { file: 'bookshelf.glb', position: [-3.5, 0, -2.5], rotation: [0, Math.PI/2, 0], scale: 1 },
+            desk: { file: 'desk.glb', position: [2.5, 0, -2.8], rotation: [0, 0, 0], scale: 1 },
+            armchair: { file: 'armchair.glb', position: [-1, 0, 1.5], rotation: [0, Math.PI/4, 0], scale: 1 },
+            grandfatherClock: { file: 'grandfather_clock.glb', position: [-3.7, 0, -0.8], rotation: [0, Math.PI/2, 0], scale: 1 },
+            gramophone: { file: 'gramophone.glb', position: [2.8, 0, 1.5], rotation: [0, 0, 0], scale: 1 },
+            sideTable: { file: 'side_table.glb', position: [-0.3, 0, 1.8], rotation: [0, 0, 0], scale: 1 },
+            typewriter: { file: 'typewriter.glb', position: [-3.6, 0.57, 1.2], rotation: [0, Math.PI/2, 0], scale: 1 },
+            radio: { file: 'radio.glb', position: [3.85, 1.1, 1.5], rotation: [0, -Math.PI/2, 0], scale: 1 },
+            globe: { file: 'globe.glb', position: [3.2, 0, 0.5], rotation: [0, 0, 0], scale: 1 },
+            telephone: { file: 'telephone.glb', position: [3.6, 0.58, -2.5], rotation: [0, -Math.PI/3, 0], scale: 1 },
+            mirror: { file: 'mirror.glb', position: [3.95, 1.6, 1], rotation: [0, -Math.PI/2, 0], scale: 1 },
+            suitcases: { file: 'suitcase.glb', position: [1.5, 0, 3.5], rotation: [0, 0.2, 0], scale: 1 },
+        };
+
+        // Track loaded models
+        const loadedModels = {};
+
+        // Model loading helper
+        async function loadModel(name) {
+            const config = MODEL_CONFIG[name];
+            if (!config) return null;
+
+            const url = `assets/models/${config.file}`;
+
+            return new Promise((resolve) => {
+                gltfLoader.load(
+                    url,
+                    (gltf) => {
+                        const model = gltf.scene;
+                        model.position.set(...config.position);
+                        model.rotation.set(...config.rotation);
+                        if (typeof config.scale === 'number') {
+                            model.scale.setScalar(config.scale);
+                        } else {
+                            model.scale.set(...config.scale);
+                        }
+                        model.traverse((child) => {
+                            if (child.isMesh) {
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+                            }
+                        });
+                        loadedModels[name] = model;
+                        console.log(`✓ Loaded model: ${name}`);
+                        resolve(model);
+                    },
+                    undefined,
+                    (error) => {
+                        console.log(`○ Model not found: ${name} (using procedural geometry)`);
+                        resolve(null);
+                    }
+                );
+            });
+        }
+
+        // Load all configured models
+        async function loadAllModels() {
+            const promises = Object.keys(MODEL_CONFIG).map(name => loadModel(name));
+            await Promise.all(promises);
+            return loadedModels;
+        }
 
         // Use global updateProgress
         const updateProgress = window.updateProgress;
@@ -1173,9 +1250,10 @@
             group.add(shade);
             return group;
         }
-        const floorLamp = createFloorLamp();
-        floorLamp.position.set(2.8, 0, 1.5);
-        scene.add(floorLamp);
+        // Floor lamp is included in armchair.glb model, so we skip the procedural one
+        // const floorLamp = createFloorLamp();
+        // floorLamp.position.set(2.8, 0, 1.5);
+        // scene.add(floorLamp);
 
         // More scattered books on floor
         const floorBooks1 = createBookStack(3, 0);
@@ -2540,16 +2618,74 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Hide loading
-        updateProgress(100, 'Ready!');
-        setTimeout(() => {
-            loading.style.opacity = '0';
-            loading.style.transition = 'opacity 0.5s';
-            setTimeout(() => loading.style.display = 'none', 500);
-        }, 1000);
+        // ============================================
+        // INITIALIZE AND LOAD MODELS
+        // ============================================
 
-        animate();
-        console.log('Scene initialized successfully!');
+        // Store references to procedural objects for potential replacement
+        const proceduralObjects = {
+            bookshelf,
+            desk,
+            armchair,
+            grandfatherClock,
+            // floorLamp removed - included in armchair.glb
+            sideTable,
+            typewriter,
+            radio,
+            floorGlobe,
+            telephone,
+            mirror,
+            suitcases
+        };
+
+        // Try to load and replace with GLTF models
+        async function initModels() {
+            console.log('🔍 Checking for 3D models in assets/models/...');
+            await loadAllModels();
+
+            // Replace procedural geometry with loaded models
+            for (const [name, model] of Object.entries(loadedModels)) {
+                if (model && proceduralObjects[name]) {
+                    // Remove procedural version
+                    scene.remove(proceduralObjects[name]);
+
+                    // Add loaded model
+                    scene.add(model);
+
+                    // Copy userData for interactive objects
+                    if (proceduralObjects[name].userData?.type === 'interactive') {
+                        model.userData = { ...proceduralObjects[name].userData };
+                        const idx = interactiveObjects.indexOf(proceduralObjects[name]);
+                        if (idx !== -1) {
+                            interactiveObjects[idx] = model;
+                        }
+                    }
+
+                    console.log(`✓ Replaced ${name} with GLTF model`);
+                }
+            }
+
+            // Handle gramophone specially (replaces nothing, just adds)
+            if (loadedModels['gramophone']) {
+                scene.add(loadedModels['gramophone']);
+                console.log('✓ Added gramophone');
+            }
+
+            console.log(`📦 Loaded ${Object.keys(loadedModels).length} models`);
+        }
+
+        // Initialize
+        initModels().then(() => {
+            updateProgress(100, 'Ready!');
+            setTimeout(() => {
+                loading.style.opacity = '0';
+                loading.style.transition = 'opacity 0.5s';
+                setTimeout(() => loading.style.display = 'none', 500);
+            }, 500);
+
+            animate();
+            console.log('Scene initialized successfully!');
+        });
     </script>
 </body>
 </html>
