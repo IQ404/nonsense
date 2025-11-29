@@ -160,36 +160,25 @@
         import * as THREE from 'three';
         import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
         // ============================================
-        // MODEL LOADING SYSTEM
+        // MODEL LOADING SYSTEM (for future use)
         // ============================================
 
-        const loadingManager = new THREE.LoadingManager();
-        const gltfLoader = new GLTFLoader(loadingManager);
+        const gltfLoader = new GLTFLoader();
 
-        // Setup DRACO loader for compressed models
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-        gltfLoader.setDRACOLoader(dracoLoader);
-
-        // Track loaded models
-        const loadedModels = {};
-
-        // Model loading helper
+        // Model loading helper (for future external model support)
         function loadModel(url, name) {
             return new Promise((resolve, reject) => {
                 gltfLoader.load(
                     url,
                     (gltf) => {
-                        loadedModels[name] = gltf;
                         resolve(gltf);
                     },
                     undefined,
                     (error) => {
                         console.warn(`Failed to load model ${name}:`, error);
-                        resolve(null); // Resolve with null so we can continue
+                        resolve(null);
                     }
                 );
             });
