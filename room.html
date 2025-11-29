@@ -219,20 +219,14 @@
         dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
         gltfLoader.setDRACOLoader(dracoLoader);
 
-        // Model configuration - maps model names to files and transforms
+        // Model configuration - only includes models that exist in assets/models/
         // armchair.glb includes: leather armchair, coffee table, floor lamp (all in one)
-        // gramophone.glb replaces the old radio
         const MODEL_CONFIG = {
             bookshelf: { file: 'bookshelf.glb', position: [-3.5, 0, -2.5], rotation: [0, Math.PI/2, 0], scale: 1 },
             desk: { file: 'desk.glb', position: [2.5, 0, -2.8], rotation: [0, 0, 0], scale: 1 },
             armchair: { file: 'armchair.glb', position: [-1, 0, 1.5], rotation: [0, Math.PI/4, 0], scale: 1 },
-            grandfatherClock: { file: 'grandfather_clock.glb', position: [-3.7, 0, -0.8], rotation: [0, Math.PI/2, 0], scale: 1 },
             gramophone: { file: 'gramophone.glb', position: [2.8, 0, 1.5], rotation: [0, 0, 0], scale: 1 },
-            sideTable: { file: 'side_table.glb', position: [-0.3, 0, 1.8], rotation: [0, 0, 0], scale: 1 },
             typewriter: { file: 'typewriter.glb', position: [-3.6, 0.57, 1.2], rotation: [0, Math.PI/2, 0], scale: 1 },
-            radio: { file: 'radio.glb', position: [3.85, 1.1, 1.5], rotation: [0, -Math.PI/2, 0], scale: 1 },
-            globe: { file: 'globe.glb', position: [3.2, 0, 0.5], rotation: [0, 0, 0], scale: 1 },
-            telephone: { file: 'telephone.glb', position: [3.6, 0.58, -2.5], rotation: [0, -Math.PI/3, 0], scale: 1 },
             mirror: { file: 'mirror.glb', position: [3.95, 1.6, 1], rotation: [0, -Math.PI/2, 0], scale: 1 },
             suitcases: { file: 'suitcase.glb', position: [1.5, 0, 3.5], rotation: [0, 0.2, 0], scale: 1 },
         };
@@ -2623,19 +2617,15 @@
         // ============================================
 
         // Store references to procedural objects for potential replacement
+        // Only includes objects that have corresponding .glb models
         const proceduralObjects = {
             bookshelf,
             desk,
-            armchair,
-            grandfatherClock,
-            // floorLamp removed - included in armchair.glb
-            sideTable,
+            armchair,  // armchair.glb includes coffee table + floor lamp too
             typewriter,
-            radio,
-            floorGlobe,
-            telephone,
             mirror,
             suitcases
+            // gramophone has no procedural equivalent - it's an addition
         };
 
         // Try to load and replace with GLTF models
