@@ -183,29 +183,33 @@
     }
     </script>
 
+    <!-- Pre-module script to track loading -->
+    <script>
+        window.updateProgress = function(percent, message) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            if (progressBar) progressBar.style.width = percent + '%';
+            if (progressText) progressText.textContent = message;
+            console.log('[' + percent + '%] ' + message);
+        };
+        window.updateProgress(5, 'Loading Three.js modules...');
+
+        // Catch module loading errors
+        window.addEventListener('error', function(e) {
+            console.error('Load error:', e);
+            const progressText = document.getElementById('progress-text');
+            const progressBar = document.getElementById('progress-bar');
+            if (progressText) progressText.textContent = 'Load error: ' + (e.message || 'Module failed to load');
+            if (progressBar) progressBar.style.background = '#c00';
+        });
+    </script>
+
     <script type="module">
         import * as THREE from 'three';
         import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
-        // ============================================
-        // PROGRESS TRACKING
-        // ============================================
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
-
-        function updateProgress(percent, message) {
-            if (progressBar) progressBar.style.width = percent + '%';
-            if (progressText) progressText.textContent = message;
-            console.log(`[${percent}%] ${message}`);
-        }
-
-        // Global error handler
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            console.error('Error: ', msg, 'at line', lineNo);
-            if (progressText) progressText.textContent = 'Error: ' + msg;
-            if (progressBar) progressBar.style.background = '#c00';
-            return false;
-        };
+        // Use global updateProgress
+        const updateProgress = window.updateProgress;
 
         updateProgress(10, 'Modules loaded...');
 
