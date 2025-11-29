@@ -2,8 +2,6 @@
 
 **Live Site:** https://iq404.github.io/nonsense/
 
-A clean, modern personal portfolio website built with HTML and CSS.
-
 ## Assets Credits to:
 
 - "Victorian Desk" (https://skfb.ly/6VZH9) by Faheem Yusuf is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
